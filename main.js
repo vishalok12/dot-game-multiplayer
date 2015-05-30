@@ -48,7 +48,7 @@ io.sockets.on('connection', function (socket) {
     /**
      * A player joins the game
      */
-    socket.on('join game', function(data) {
+    socket.on('join game', function(data, fn) {
         var room = data.token;
         socket.join(room);
 
@@ -58,8 +58,11 @@ io.sockets.on('connection', function (socket) {
             // create a new game
             var player = {
                 socket: socket,
-                name: playerName
+                name: playerName,
+                id: playerName
             };
+
+            fn(player.id);
 
             var game = {
                 players: [player],
@@ -74,8 +77,11 @@ io.sockets.on('connection', function (socket) {
 
             var player = {
                 socket: socket,
-                name: playerName
+                name: playerName,
+                id: games[room].players[0].name !== playerName ? playerName : playerName + '-1'
             };
+
+            fn(player.id);
 
             games[room].players.push(player);
 
@@ -84,8 +90,8 @@ io.sockets.on('connection', function (socket) {
             var players = games[room].players;
             // emit message to start game
             io.sockets.in(room).emit('start',
-                {players: [{name: players[0].name, move: true},
-                           {name: players[1].name, move: false}]});
+                {players: [{name: players[0].name, id: players[0].id, move: true},
+                           {name: players[1].name, id: players[1].id, move: false}]});
 
         } else {
             // already 2 players playing !!

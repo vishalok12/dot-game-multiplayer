@@ -18,6 +18,9 @@
         ]
     };
 
+    var paddingYForDotMap = 130;
+
+
     var socket;
 
     function initialize() {
@@ -94,7 +97,9 @@
 
         vApp.token = token;
 
-        socket.emit('join game', {token: token});
+        socket.emit('join game', {token: token}, function(playerId) {
+            vApp.currentGamePlayerId = playerId;
+        });
     }
 
     // taken from stack overflow
@@ -144,7 +149,7 @@
         document.getElementById('game-link').style.display = 'none';
 
         var opponent = data.players.filter(function(player) {
-            return player.name.toLowerCase() !== vApp.userName.toLowerCase();
+            return player.id !== vApp.currentGamePlayerId;
         })[0];
 
         vApp.opponentName = opponent.name;
@@ -249,7 +254,7 @@
             for (coln = 0; coln < dotMap[row].length; coln++) {
                 ctx.save();
                 var posX = vApp.dotDistance * coln;
-                var posY = vApp.dotDistance * row;
+                var posY = paddingYForDotMap + vApp.dotDistance * row;
                 var lineColor;
 
                 ctx.translate(posX, posY);
@@ -279,7 +284,7 @@
     function colorBlock(block) {
         var dotDistance = vApp.dotDistance;
         var x = block._column * dotDistance;
-        var y = block._row * dotDistance;
+        var y = block._row * dotDistance + paddingYForDotMap;
         var ctx = vApp.context;
         if (block.get('owner') === 'user') {
             ctx.fillStyle = 'rgb(218, 76, 76)';
@@ -326,16 +331,17 @@
      * paint the score of the players in canvas
      */
     function writeScore() {
-        var yPos = vApp.moveEnabled ? 50 : 80;
+        var xPos = vApp.moveEnabled ? 5 : 90;
+        var yPos = 10;
         var ctx = vApp.context;
 
-        ctx.font = "bold 22px ubuntu";
+        ctx.font = "bold 16px ubuntu";
         ctx.fillStyle = '#D02222';
-        ctx.fillText("*", 300, yPos);
+        ctx.fillText("*", xPos, yPos);
 
         ctx.fillStyle = '#dddddd';
-        ctx.fillText( "You: " + vApp.score, 320, 50);
-        ctx.fillText(vApp.opponentName + ": " + vApp.opponentScore, 320, 80);
+        ctx.fillText( "You: " + vApp.score, 15, yPos);
+        ctx.fillText(vApp.opponentName + ": " + vApp.opponentScore, 100, yPos);
     }
 
     /**
@@ -367,97 +373,110 @@
 
     function bindCanvas() {
         var canvas = document.getElementById('game-area');
-        canvas.addEventListener('mousedown', function(e) {
-            e.stopPropagation();
-            e.preventDefault();
 
-            if (!canMove()) { return; }
+        canvas.addEventListener('touchstart', getSourcePoint, false);
+        canvas.addEventListener('mousedown', getSourcePoint, false);
 
-            var rect = canvas.getBoundingClientRect();
-            var clickX = e.clientX - rect.left;                 // x-position of clicked area relative to canvas
-            var clickY = e.clientY - rect.top;                  // y-position of clicked area relative to canvas
+        canvas.addEventListener('touchmove', drawMoveAnimation, false);
+        canvas.addEventListener('mousemove', drawMoveAnimation, false);
 
-            // shift by vertex radius as we shifted canvas paint by that
-            var adjustedX = clickX - vApp.vertexRadius;
-            var adjustedY = clickY - vApp.vertexRadius;
+        canvas.addEventListener('touchend', getSelectedEdge, false);
+        canvas.addEventListener('mouseup', getSelectedEdge, false);
+    }
 
-            vApp.dragSource = getVertexClicked(adjustedX, adjustedY);
-            if ( vApp.dragSource ) {
-                vApp.dragEvent = true;
+    function getSelectedEdge(e) {
+        var canvas = document.getElementById('game-area');
+
+        if (!vApp.dragEvent || !canMove()) { return; }
+
+        vApp.dragEvent = false;
+        var ctx = vApp.context;
+        e.stopPropagation();
+        e.preventDefault();
+
+        cancelAnimationFrame(vApp.requestId);   // don't paint the mousemove frame request
+
+        // check for an edge selection
+        var rect = canvas.getBoundingClientRect();
+        var clickX = (e.clientX || e.changedTouches[0].clientX) - rect.left;
+        var clickY = (e.clientY || e.changedTouches[0].clientY) - rect.top;
+
+        var adjustedX = clickX - vApp.vertexRadius;
+        var adjustedY = clickY - vApp.vertexRadius;
+
+        var dragDest = getVertexClicked(adjustedX, adjustedY);
+        if (dragDest) {
+            var sourceIndex = dotCoordInIndex(vApp.dragSource);
+            var destIndex = dotCoordInIndex(dragDest);
+            var edgeSelected = vApp.blockGraph.isEdgeSelected(sourceIndex, destIndex);
+            if (isNeighbour(sourceIndex, destIndex) && !edgeSelected) {
+                sendMoveToServer(sourceIndex, destIndex);
+            }
+        }
+
+        drawGraph(vApp.dotMap);
+    }
+
+    function drawMoveAnimation(e) {
+        var canvas = document.getElementById('game-area');
+
+        var ctx = vApp.context;
+        e.stopPropagation();
+        e.preventDefault();
+
+        if (!vApp.dragEvent || !canMove()) { return; }
+
+        var rect = canvas.getBoundingClientRect();
+        var xMove = (e.clientX || e.targetTouches[0].clientX) - rect.left;
+        var yMove = (e.clientY || e.targetTouches[0].clientY) - rect.top;
+
+        var dragSource = vApp.dragSource;
+
+        // request for animation frame only if the previous one has been executed
+        if (!vApp.requestedFrame) {
+            vApp.requestedFrame = true;
+            vApp.requestId = window.requestAnimationFrame(function() {
+                drawGraph(vApp.dotMap);     // paints the dot graph
+                ctx.save();
+                ctx.translate(dragSource.x, dragSource.y);
+                // paint the line which user is currently stretching
+                drawLine(
+                    xMove - vApp.dragSource.x,
+                    yMove - vApp.dragSource.y,
+                    'rgb(115, 152, 185)'
+                );
+                ctx.restore();
                 vApp.requestedFrame = false;
-            }
+            });
+        }
+    }
 
-        }, false);
+    function getSourcePoint(e) {
+        var canvas = document.getElementById('game-area');
 
-        canvas.addEventListener('mousemove', function(e) {
-            var ctx = vApp.context;
-            e.stopPropagation();
-            e.preventDefault();
+        e.stopPropagation();
+        e.preventDefault();
 
-            if (!vApp.dragEvent || !canMove()) { return; }
+        if (!canMove()) { return; }
 
-            var rect = canvas.getBoundingClientRect();
-            var xMove = e.clientX - rect.left;
-            var yMove = e.clientY - rect.top;
+        var rect = canvas.getBoundingClientRect();
+        var clickX = (e.clientX || e.targetTouches[0].clientX) - rect.left; // x-position of clicked area relative to canvas
+        var clickY = (e.clientY || e.targetTouches[0].clientY) - rect.top; // y-position of clicked area relative to canvas
 
-            var dragSource = vApp.dragSource;
+        // shift by vertex radius as we shifted canvas paint by that
+        var adjustedX = clickX - vApp.vertexRadius;
+        var adjustedY = clickY - vApp.vertexRadius;
 
-            // request for animation frame only if the previous one has been executed
-            if (!vApp.requestedFrame) {
-                vApp.requestedFrame = true;
-                vApp.requestId = window.requestAnimationFrame(function() {
-                    drawGraph(vApp.dotMap);     // paints the dot graph
-                    ctx.save();
-                    ctx.translate(dragSource.x, dragSource.y);
-                    // paint the line which user is currently stretching
-                    drawLine(
-                        xMove - vApp.dragSource.x,
-                        yMove - vApp.dragSource.y,
-                        'rgb(115, 152, 185)'
-                    );
-                    ctx.restore();
-                    vApp.requestedFrame = false;
-                });
-            }
-
-        });
-
-        canvas.addEventListener('mouseup', function(e) {
-            if (!vApp.dragEvent || !canMove()) { return; }
-
-            vApp.dragEvent = false;
-            var ctx = vApp.context;
-            e.stopPropagation();
-            e.preventDefault();
-
-            cancelAnimationFrame(vApp.requestId);   // don't paint the mousemove frame request
-
-            // check for an edge selection
-            var rect = canvas.getBoundingClientRect();
-            var clickX = e.clientX - rect.left;
-            var clickY = e.clientY - rect.top;
-            var adjustedX = clickX - vApp.vertexRadius;
-            var adjustedY = clickY - vApp.vertexRadius;
-
-            var dragDest = getVertexClicked(adjustedX, adjustedY);
-            if (dragDest) {
-                var sourceIndex = dotCoordInIndex(vApp.dragSource);
-                var destIndex = dotCoordInIndex(dragDest);
-                var edgeSelected = vApp.blockGraph.isEdgeSelected(sourceIndex, destIndex);
-                if (isNeighbour(sourceIndex, destIndex) && !edgeSelected) {
-                    sendMoveToServer(sourceIndex, destIndex);
-                }
-            }
-            drawGraph(vApp.dotMap);
-
-            // reset values
-            // vApp.dragSource = null;
-        });
+        vApp.dragSource = getVertexClicked(adjustedX, adjustedY);
+        if ( vApp.dragSource ) {
+            vApp.dragEvent = true;
+            vApp.requestedFrame = false;
+        }
     }
 
     function dotCoordInIndex(pixelPos) {
         return {
-            row: (pixelPos.y - vApp.vertexRadius) / vApp.dotDistance,
+            row: (pixelPos.y - vApp.vertexRadius - paddingYForDotMap) / vApp.dotDistance,
             column: (pixelPos.x - vApp.vertexRadius) / vApp.dotDistance
         }
     }
@@ -465,7 +484,7 @@
     function dotCoordInPixel(indexPos) {
         return {
             x: indexPos.column * vApp.dotDistance + vApp.vertexRadius,
-            y: indexPos.row * vApp.dotDistance + vApp.vertexRadius
+            y: indexPos.row * vApp.dotDistance + vApp.vertexRadius + paddingYForDotMap
         }
     }
 
@@ -480,6 +499,10 @@
     }
 
     function getVertexClicked(x, y) {
+        y = y - paddingYForDotMap;
+
+        console.log(y);
+
         var expectedColumn = Math.round(x / vApp.dotDistance);
         var expectedRow = Math.round(y / vApp.dotDistance);
 

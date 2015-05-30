@@ -12,57 +12,38 @@
 
     <body onload="initialize();">
 
-	<!--[if lt IE 8]>
-		<p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
-	<![endif]-->
+    	<!--[if lt IE 8]>
+    		<p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+    	<![endif]-->
 
-            <div id="overlay">
-                <div id="game-over">
-                    <button id="game-start-btn">Start New Game</button>
-                </div>
-                <div id="game-link">
-                    <div><span>Send this link to your opponent</span></div>
-                    <input class="opponent-game-link" value="" disabled>
-                </div>
-                <div id="input-wrapper" class="input-group">
-                    <input id="user-name" type="text" class="form-control" placeholder="Enter Your Name">
-                    <span class="input-group-btn">
-                        <button id="submit-btn" class="btn btn-success" type="button">Done</button>
-                    </span>
-                </div>
+        <div id="overlay">
+            <div id="game-over">
+                <button id="game-start-btn">Start New Game</button>
             </div>
-
-            <div id="wrapper">
-                <canvas width="480" height="320" id="game-area">Your browser doesn't support canvas</canvas>
+            <div id="game-link">
+                <div><span>Send this link to your opponent</span></div>
+                <input class="opponent-game-link">
             </div>
-            <!-- socket.io -->
-            <script src="/socket.io/socket.io.js"></script>
-            <!-- vendor js -->
-            <script type="text/javascript" src="js/underscore.js"></script>
+            <div id="input-wrapper" class="input-group">
+                <input id="user-name" type="text" class="form-control" placeholder="Enter Your Name">
+                <span class="input-group-btn">
+                    <button id="submit-btn" class="btn btn-success" type="button">Done</button>
+                </span>
+            </div>
+        </div>
 
-            <!-- game js files -->
-            <script type="text/javascript" src="js/blockgraph.js"></script>
-            <script type="text/javascript" src="js/bot.js"></script>
-            <script type="text/javascript" src="js/app.js"></script>
+        <div id="wrapper">
+            <canvas width="280" height="450" id="game-area">Your browser doesn't support canvas</canvas>
+        </div>
+        <!-- socket.io -->
+        <script src="/socket.io/socket.io.js"></script>
+        <!-- vendor js -->
+        <script type="text/javascript" src="js/underscore.js"></script>
 
-    <!-- <div class="container">
-    	<div class="jumbotron">
-        	<h1>Dot Game</h1>
-       		<p>A Multiplayer Dot game using socket.io. Enjoy Playing!!</p>
-       		<div class="row">
-       			<div class="col-md-4 col-sm-6 col-xs-6">
-       				<h3>All Chatter<button id="clearAllPosts" type="button" class="btn btn-danger btn-xs pull-right">clear</button></h3>
-       				<div id="allPosts" class="form-control"></div>
-				    <div class="input-group">
-						<input id="blast" type="text" class="form-control" placeholder="send something to everyone">
-						<span class="input-group-btn">
-							<button id="send" class="btn btn-success" type="button">Send</button>
-						</span>
-				    </div>
-       			</div>
-       		</div>
-		</div>
-	</div> -->
+        <!-- game js files -->
+        <script type="text/javascript" src="js/blockgraph.js"></script>
+        <script type="text/javascript" src="js/bot.js"></script>
+        <script type="text/javascript" src="js/app.js"></script>
 
     </body>
 </html>
