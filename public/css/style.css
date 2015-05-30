@@ -1,0 +1,73 @@
+#wrapper {
+    width: 480px;
+    height: 320px;
+    background: rgb(126, 78, 59);
+    padding: 25px;
+}
+
+#overlay {
+    display: none;
+    width: 480px;
+    height: 320px;
+    position: absolute;
+    padding: 25px;
+    background: rgb(255, 255, 255);
+    border: 1px solid rgb(220, 220, 220);
+}
+
+.input-group {
+    display: none;
+}
+
+.form-control {
+    margin: 25px 10px;
+    padding: 8px;
+    font-size: 16px;
+}
+
+.btn {
+    font-size: 16px;
+    color: rgb(79, 79, 79);
+    background: rgb(87, 197, 122);
+    border: 1px solid rgb(35, 84, 50);
+    padding: 8px;
+    border-radius: 4px;
+}
+
+#game-link {
+    color: rgb(48, 48, 48);
+    display: none;
+}
+
+.opponent-game-link {
+    font-size: 18px;
+    padding: 6px 4px;
+    width: 440px;
+    margin-top: 10px;
+}
+
+#game-over {
+    display: none;
+    text-align: center;
+    margin-top: 125px;
+}
+
+#game-start-btn {
+    background: rgb(124, 216, 125);
+    border: 1px solid rgb(118, 207, 119);
+    font-size: 18px;
+    padding: 8px;
+    color: rgb(81, 81, 81);
+    box-shadow: 0 2px 2px rgb(86, 148, 87);
+    outline: none;
+}
+
+#game-start-btn:hover {
+    background: rgb(131, 229, 132);
+}
+
+#game-start-btn:active {
+    background: rgb(131, 229, 132);
+    margin-top: 2px;
+    box-shadow: none;
+}
