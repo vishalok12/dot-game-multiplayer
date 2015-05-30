@@ -55,11 +55,29 @@ body {
     display: none;
 }
 
+.opponent-link-wrapper {
+    position: relative;
+    margin-top: 10px;
+}
+
 .opponent-game-link {
     font-size: 16px;
+    color: gray;
     padding: 6px 4px;
     width: 100%;
-    margin-top: 10px;
+    box-sizing: border-box;
+}
+
+.copy-clipboard {
+    background-image: url('/img/clipboard-64.png');
+    background-size: cover;
+    width: 22px;
+    height: 22px;
+    display: table-cell;
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    cursor: pointer;
 }
 
 #game-over {

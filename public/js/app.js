@@ -74,6 +74,8 @@
         loadLevel(vApp.level);
         bindElements();
         bindCanvas();
+
+        var client = new ZeroClipboard( document.getElementById("copy-button") );
     }
 
     function joinGame() {
@@ -88,6 +90,7 @@
             token = createRandomToken();
 
             document.getElementsByClassName('opponent-game-link')[0].value = location.href + '?gameid=' + token;
+            document.getElementById('copy-button').setAttribute('data-clipboard-text', location.href + '?gameid=' + token);
 
             document.getElementById('overlay').style.display = 'block';
             document.getElementById('game-link').style.display = 'block';

@@ -22,7 +22,10 @@
             </div>
             <div id="game-link">
                 <div><span>Send this link to your opponent</span></div>
-                <input class="opponent-game-link">
+                <div class="opponent-link-wrapper">
+                    <input class="opponent-game-link" readonly="readonly">
+                    <span id="copy-button" class="copy-clipboard" title="Copy to Clipboard"></span>
+                </div>
             </div>
             <div id="input-wrapper" class="input-group">
                 <input id="user-name" type="text" class="form-control" placeholder="Enter Your Name">
@@ -39,6 +42,7 @@
         <script src="/socket.io/socket.io.js"></script>
         <!-- vendor js -->
         <script type="text/javascript" src="js/underscore.js"></script>
+        <script type="text/javascript" src="js/ZeroClipboard/ZeroClipboard.min.js"></script>
 
         <!-- game js files -->
         <script type="text/javascript" src="js/blockgraph.js"></script>
