@@ -94,7 +94,9 @@
 
         vApp.token = token;
 
-        socket.emit('join game', {token: token});
+        socket.emit('join game', {token: token}, function(playerId) {
+            vApp.currentGamePlayerId = playerId;
+        });
     }
 
     // taken from stack overflow
@@ -144,7 +146,7 @@
         document.getElementById('game-link').style.display = 'none';
 
         var opponent = data.players.filter(function(player) {
-            return player.name.toLowerCase() !== vApp.userName.toLowerCase();
+            return player.id !== vApp.currentGamePlayerId;
         })[0];
 
         vApp.opponentName = opponent.name;
