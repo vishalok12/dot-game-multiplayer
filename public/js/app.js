@@ -66,7 +66,6 @@
         vApp.opponentScore = 0;                 // score of opponent user
         vApp.WIDTH = canvas.width;
         vApp.HEIGHT = canvas.height;
-        vApp.currentUser = 'user';  // the player who has turn to play
         vApp.gameLevel = 'hard';
         vApp.gameStarted = false;
         vApp.moveEnabled = false;
@@ -192,8 +191,6 @@
                 }
             } else {
                 vApp.moveEnabled = !vApp.moveEnabled;
-                // vApp.currentUser = 'bot';   // computer's turn
-                // vBot.takeTurn();
             }
 
             drawGraph(vApp.dotMap);
@@ -289,12 +286,21 @@
         var x = block._column * dotDistance;
         var y = block._row * dotDistance + paddingYForDotMap;
         var ctx = vApp.context;
-        if (block.get('owner') === 'user') {
-            ctx.fillStyle = 'rgb(218, 76, 76)';
-        } else {
+        var fontSize = 24;
+        var blockOwner;
+
+        if (block.get('userAcquired')) {
             ctx.fillStyle = 'rgb(61, 113, 192)';
+            blockOwner = vApp.userName;
+        } else {
+            ctx.fillStyle = 'rgb(218, 76, 76)';
+            blockOwner = vApp.opponentName;
         }
         ctx.fillRect(x, y, dotDistance, dotDistance);
+
+        ctx.font = "bold " + fontSize + "px ubuntu";
+        ctx.fillStyle = '#3c3c3c';
+        ctx.fillText(blockOwner[0], x + (dotDistance - fontSize + 5) / 2, y + (dotDistance + fontSize - 5)/ 2);
     }
 
     function getLineColor(row1, coln1, row2, coln2) {

@@ -38,7 +38,7 @@
         attr.left = null;
         attr.right = null;
         attr.selected = 0;
-        attr.owner = null;
+        attr.userAcquired = null;
         this._attr = attr;
         this._row = i;
         this._column = j;
@@ -141,14 +141,14 @@
                 blocks[row][column].set('top', 1);
                 if (blocks[row][column].acquired()) {
                     numOfBlocksAquired++;
-                    blocks[row][column].set('owner', vApp.currentUser);
+                    blocks[row][column].set('userAcquired', vApp.moveEnabled);
                 }
             }
             if (row > 0) {
                 blocks[row - 1][column].set('bottom', 1);
                 if (blocks[row - 1][column].acquired()) {
                     numOfBlocksAquired++;
-                    blocks[row - 1][column].set('owner', vApp.currentUser);
+                    blocks[row - 1][column].set('userAcquired', vApp.moveEnabled);
                 }
             }
         } else if (sourceIndex.column === destIndex.column) {
@@ -158,14 +158,14 @@
                 blocks[row][column].set('left', 1);
                 if (blocks[row][column].acquired()) {
                     numOfBlocksAquired++;
-                    blocks[row][column].set('owner', vApp.currentUser);
+                    blocks[row][column].set('userAcquired', vApp.moveEnabled);
                 }
             }
             if (column > 0) {
                 blocks[row][column - 1].set('right', 1);
                 if (blocks[row][column - 1].acquired()) {
                     numOfBlocksAquired++;
-                    blocks[row][column - 1].set('owner', vApp.currentUser);
+                    blocks[row][column - 1].set('userAcquired', vApp.moveEnabled);
                 }
             }
         }
