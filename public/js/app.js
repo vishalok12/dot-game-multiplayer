@@ -75,6 +75,12 @@
         bindCanvas();
 
         var client = new ZeroClipboard( document.getElementById("copy-button") );
+
+        client.on("ready", function(readyEvent) {
+            client.on("aftercopy", function(event) {
+                document.getElementById('game-link-input').select();
+            });
+        });
     }
 
     function joinGame() {
@@ -300,7 +306,11 @@
 
         ctx.font = "bold " + fontSize + "px ubuntu";
         ctx.fillStyle = '#3c3c3c';
-        ctx.fillText(blockOwner[0], x + (dotDistance - fontSize + 5) / 2, y + (dotDistance + fontSize - 5)/ 2);
+
+        var charXPos = x + (dotDistance - fontSize + 5) / 2;
+        var charYPos = y + (dotDistance + fontSize - 5) / 2;
+
+        ctx.fillText(blockOwner[0].toUpperCase(), charXPos, charYPos);
     }
 
     function getLineColor(row1, coln1, row2, coln2) {

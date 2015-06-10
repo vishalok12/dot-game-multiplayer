@@ -7,7 +7,7 @@
   "private": true,
   "repository": "",
   "scripts": {
-    "start": "node bin/www"
+    "start": "PORT=1337 node bin/www"
   },
   "dependencies": {
     "ejs": "~0.8.5",

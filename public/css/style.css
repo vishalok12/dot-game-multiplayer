@@ -68,15 +68,20 @@ body {
     box-sizing: border-box;
 }
 
+.copy-clipboard-wrapper {
+    position: absolute;
+    top: 1px;
+    right: 1px;
+    padding: 5px;
+    background-color: rgba(128, 128, 128, 0.5);
+}
+
 .copy-clipboard {
     background-image: url('/img/clipboard-64.png');
     background-size: cover;
     width: 22px;
     height: 22px;
     display: table-cell;
-    position: absolute;
-    top: 5px;
-    right: 5px;
     cursor: pointer;
 }
 
